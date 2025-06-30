@@ -1,5 +1,8 @@
 use crate::types::*;
-use actix_web::{post, web, HttpResponse};
+use actix_web::dev::Payload;
+use actix_web::FromRequest;
+use actix_web::{error, post, web, HttpResponse};
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use solana_sdk::signature::{Keypair, Signer};
 use std::panic;
@@ -39,4 +42,15 @@ pub async fn sign_message(req: web::Json<SignMessageRequest>) -> Result<HttpResp
         success: true,
         data: response_data,
     }))
+}
+
+pub fn json_error_handler(
+    err: error::JsonPayloadError,
+    _req: &actix_web::HttpRequest,
+) -> actix_web::Error {
+    let resp = HttpResponse::BadRequest().json(serde_json::json!({
+        "success": false,
+        "error": format!("Missing required fields"),
+    }));
+    error::InternalError::from_response(err, resp).into()
 }

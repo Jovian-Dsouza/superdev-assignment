@@ -16,6 +16,10 @@ fn configure_services(cfg: &mut web::ServiceConfig) {
         app_name: String::from("Superdev assingment"),
         rpc_client: client,
     }))
+    .app_data(
+            web::JsonConfig::default()
+                .error_handler(json_error_handler)
+        )
     .service(get_health::get_health)
     .service(keypair::keypair)
     .service(token::create_token)
