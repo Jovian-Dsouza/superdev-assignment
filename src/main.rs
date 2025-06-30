@@ -17,7 +17,8 @@ fn configure_services(cfg: &mut web::ServiceConfig) {
         rpc_client: client,
     }))
     .service(get_health::get_health)
-    .service(keypair::keypair);
+    .service(keypair::keypair)
+    .service(token::create_token);
 }
 
 #[shuttle_runtime::main]
