@@ -41,7 +41,7 @@ impl ResponseError for ApiError {
                 msg.to_string(),
             ),
             ApiError::InternalError(msg) => (
-                actix_web::http::StatusCode::INTERNAL_SERVER_ERROR,
+                actix_web::http::StatusCode::BAD_REQUEST,
                 format!("An internal error occurred: {}", msg),
             ),
         };

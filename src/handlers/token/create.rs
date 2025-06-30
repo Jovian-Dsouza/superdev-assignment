@@ -1,8 +1,9 @@
 use actix_web::{post, web, HttpResponse};
 use serde::Deserialize;
 use crate::types::*;
+use tracing::info;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct CreateTokenRequest {
     #[serde(rename = "mintAuthority")]
     pub mint_authority: String,
@@ -14,6 +15,7 @@ pub struct CreateTokenRequest {
 pub async fn create_token(
     req: web::Json<CreateTokenRequest>,
 ) -> Result<HttpResponse, ApiError> {
+    info!(?req, "Create token");
     let mint_authority_pubkey = super::parse_pubkey(&req.mint_authority, "mintAuthority")?;
     let mint_pubkey = super::parse_pubkey(&req.mint, "mint")?;
     let token_program_id = spl_token::id();

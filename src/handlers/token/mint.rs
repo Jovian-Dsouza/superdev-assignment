@@ -1,8 +1,9 @@
 use actix_web::{post, web, HttpResponse};
 use serde::Deserialize;
 use crate::types::*;
+use tracing::info;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct MintTokenRequest {
     pub mint: String,
     pub destination: String,
@@ -14,6 +15,7 @@ pub struct MintTokenRequest {
 pub async fn mint_token(
     req: web::Json<MintTokenRequest>,
 ) -> Result<HttpResponse, ApiError> {
+    info!(?req, "mint token");
     let mint_pubkey = super::parse_pubkey(&req.mint, "mint")?;
     let destination_pubkey = super::parse_pubkey(&req.destination, "destination")?;
     let authority_pubkey = super::parse_pubkey(&req.authority, "authority")?;
