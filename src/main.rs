@@ -32,7 +32,6 @@ fn configure_services(cfg: &mut web::ServiceConfig) {
 
 #[shuttle_runtime::main]
 async fn main() -> ShuttleActixWeb<impl FnOnce(&mut ServiceConfig) + Send + Clone + 'static> {
-
     let config = move |cfg: &mut ServiceConfig| {
         configure_services(cfg);
     };

@@ -6,14 +6,15 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use solana_sdk::signature::{Keypair, Signer};
 use std::panic;
+use tracing::info;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SignMessageRequest {
     pub message: String,
     pub secret: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct SignMessageResponseData {
     pub signature: String,
     pub public_key: String,
@@ -22,6 +23,7 @@ pub struct SignMessageResponseData {
 
 #[post("/message/sign")]
 pub async fn sign_message(req: web::Json<SignMessageRequest>) -> Result<HttpResponse, ApiError> {
+    info!(?req, "Sign message");
     if req.message.is_empty() || req.secret.is_empty() {
         return Err(ApiError::BadRequest("Missing required fields".to_string()));
     }
