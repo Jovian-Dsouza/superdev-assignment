@@ -3,27 +3,29 @@ use serde::Deserialize;
 use crate::types::*;
 
 #[derive(Deserialize)]
-pub struct CreateTokenRequest {
-    #[serde(rename = "mintAuthority")]
-    pub mint_authority: String,
+pub struct MintTokenRequest {
     pub mint: String,
-    pub decimals: u8,
+    pub destination: String,
+    pub authority: String,
+    pub amount: u64,
 }
 
-#[post("/token/create")]
-pub async fn create_token(
-    req: web::Json<CreateTokenRequest>,
+#[post("/token/mint")]
+pub async fn mint_token(
+    req: web::Json<MintTokenRequest>,
 ) -> Result<HttpResponse, ApiError> {
-    let mint_authority_pubkey = super::parse_pubkey(&req.mint_authority, "mintAuthority")?;
     let mint_pubkey = super::parse_pubkey(&req.mint, "mint")?;
+    let destination_pubkey = super::parse_pubkey(&req.destination, "destination")?;
+    let authority_pubkey = super::parse_pubkey(&req.authority, "authority")?;
     let token_program_id = spl_token::id();
 
-    let instruction = spl_token::instruction::initialize_mint(
+    let instruction = spl_token::instruction::mint_to(
         &token_program_id,
         &mint_pubkey,
-        &mint_authority_pubkey,
-        None, // freeze
-        req.decimals,
+        &destination_pubkey,
+        &authority_pubkey,
+        &[], // No multisig signers
+        req.amount,
     )
     .map_err(|e| ApiError::InternalError(e.to_string()))?;
 
