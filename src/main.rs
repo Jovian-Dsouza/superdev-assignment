@@ -21,7 +21,8 @@ fn configure_services(cfg: &mut web::ServiceConfig) {
     .service(token::create_token)
     .service(token::mint_token)
     .service(token::transfer_token)
-    .service(message::sign_message);
+    .service(message::sign_message)
+    .service(message::verify_message);
 }
 
 #[shuttle_runtime::main]
