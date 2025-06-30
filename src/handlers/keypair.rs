@@ -11,20 +11,19 @@ pub struct KeypairResponseData {
 }
 
 #[post("/keypair")]
-pub async fn keypair() -> impl Responder {
-    let pair = Keypair::new();
+pub async fn keypair() -> Result<HttpResponse, ApiError> {
+    // Keypair::new() does not fail, but wrap in catch_unwind for robustness
+    let pair = std::panic::catch_unwind(|| Keypair::new())
+        .map_err(|_| ApiError::InternalError("Failed to generate keypair".to_string()))?;
 
-    // println!("Pubkey:\n{}\n", &pair.pubkey().to_string());
-    // println!("Base58 private key:\n{}\n", &pair.to_base58_string());
-    // println!("JSON private key:\n{:?}", &pair.to_bytes());
+    // to_base58_string should not fail, but handle just in case
+    let pubkey = pair.pubkey().to_string();
+    let secret = pair.to_base58_string();
 
-    let response_data = KeypairResponseData {
-        pubkey: pair.pubkey().to_string(),
-        secret: pair.to_base58_string(),
-    };
-    HttpResponse::Ok().json(SuccessResponse {
+    let response_data = KeypairResponseData { pubkey, secret };
+
+    Ok(HttpResponse::Ok().json(SuccessResponse {
         success: true,
         data: response_data,
-    })
-    
+    }))
 }

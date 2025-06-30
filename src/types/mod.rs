@@ -69,8 +69,33 @@ pub struct InstructionResponseData {
     instruction_data: String,
 }
 
+// impl From<Instruction> for InstructionResponseData {
+//     fn from(instruction: Instruction) -> Self {
+//         InstructionResponseData {
+//             program_id: instruction.program_id.to_string(),
+//             accounts: instruction
+//                 .accounts
+//                 .into_iter()
+//                 .map(|meta| InstructionAccount {
+//                     pubkey: meta.pubkey.to_string(),
+//                     is_signer: meta.is_signer,
+//                     is_writable: meta.is_writable,
+//                 })
+//                 .collect(),
+//             //TODO: use Engine::encode
+//             instruction_data: base64::encode(instruction.data),
+//         }
+//     }
+// }
+
 impl From<Instruction> for InstructionResponseData {
     fn from(instruction: Instruction) -> Self {
+        let serialized_data = bincode::serialize(&instruction.data)
+            .unwrap_or_else(|err| {
+                eprintln!("Failed to serialize instruction data: {}", err);
+                Vec::new()
+            });
+
         InstructionResponseData {
             program_id: instruction.program_id.to_string(),
             accounts: instruction
@@ -82,8 +107,7 @@ impl From<Instruction> for InstructionResponseData {
                     is_writable: meta.is_writable,
                 })
                 .collect(),
-            //TODO: use Engine::encode
-            instruction_data: base64::encode(instruction.data),
+            instruction_data: base64::encode(serialized_data),
         }
     }
 }
